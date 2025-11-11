@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💎 Pırlanta Fiyat Tahmin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-tabs button {
+            padding: 12px 30px;
+            background: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .nav-tabs button:hover,
+        .nav-tabs button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: fadeIn 0.6s ease;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Ana Sayfa Stilleri */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        /* Form Stilleri */
+        .form-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-field label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .form-field input,
+        .form-field select {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-field input:focus,
+        .form-field select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .predict-btn {
+            grid-column: 1 / -1;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .predict-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Sonuç Kartı */
+        .result-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            text-align: center;
+            display: none;
+        }
+
+        .result-card.show {
+            display: block;
+            animation: slideUp 0.6s ease;
+        }
+
+        .result-card h2 {
+            font-size: 2.5em;
+            margin: 20px 0;
+        }
+
+        .result-card p {
+            font-size: 1.1em;
+            opacity: 0.95;
+            margin: 10px 0;
+        }
+
+        /* Chart */
+        .chart-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .chart-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+            margin: 20px 0;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-group {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💎 Pırlanta Fiyat Tahmin Sistemi</h1>
+            <p>Makine Öğrenmesi ile Doğru Fiyat Tahminleri</p>
+        </header>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" data-tab="home">🏠 Ana Sayfa</button>
+            <button class="tab-btn" data-tab="analysis">📈 Veri Analizi</button>
+            <button class="tab-btn" data-tab="predict">🔮 Fiyat Tahmin</button>
+        </div>
+
+        <div class="content">
+            <!-- ANA SAYFA -->
+            <div id="home" class="tab-content active">
+                <h2>📊 Genel Bilgiler</h2>
+                <div class="stats" id="statsContainer"></div>
+                
+                <h2 style="margin-top: 40px; margin-bottom: 20px;">🔝 En Değerli 5 Pırlanta</h2>
+                <div id="topDiamonds"></div>
+            </div>
+
+            <!-- VERİ ANALİZİ -->
+            <div id="analysis" class="tab-content">
+                <h2>📊 Detaylı Veri Analizi</h2>
+                
+                <div class="nav-tabs" style="margin: 30px 0;">
+                    <button class="chart-btn active" data-chart="correlation">📉 Korelasyon</button>
+                    <button class="chart-btn" data-chart="distribution">📊 Dağılımlar</button>
+                    <button class="chart-btn" data-chart="categorical">🎨 Kategoriler</button>
+                    <button class="chart-btn" data-chart="boxplot">📦 İlişkiler</button>
+                </div>
+
+                <div class="chart-container">
+                    <div class="loading" id="chartLoading" style="display: none;">Yükleniyor...</div>
+                    <img id="chartImage" style="display: none;" src="" alt="Chart">
+                </div>
+            </div>
+
+            <!-- FIYAT TAHMİN -->
+            <div id="predict" class="tab-content">
+                <h2>💰 Pırlantanız için Fiyat Tahmin Edin</h2>
+                
+                <form id="predictForm">
+                    <div class="form-group">
+                        <div class="form-field">
+                            <label for="carat">⚖️ Carat (Ağırlık)</label>
+                            <input type="number" id="carat" name="carat" min="0" max="5" value="1" step="0.01" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="depth">📏 Depth (%)</label>
+                            <input type="number" id="depth" name="depth" min="50" max="70" value="61" step="0.1" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="table">📐 Table (%)</label>
+                            <input type="number" id="table" name="table" min="50" max="95" value="57" step="0.1" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="x">📊 X (mm)</label>
+                            <input type="number" id="x" name="x" min="0" max="15" value="6" step="0.1" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="y">📊 Y (mm)</label>
+                            <input type="number" id="y" name="y" min="0" max="15" value="6" step="0.1" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="z">📊 Z (mm)</label>
+                            <input type="number" id="z" name="z" min="0" max="10" value="4" step="0.1" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="cut">✂️ Cut</label>
+                            <select id="cut" name="cut" required>
+                                <option value="Fair">Fair</option>
+                                <option value="Good">Good</option>
+                                <option value="Very Good">Very Good</option>
+                                <option value="Premium">Premium</option>
+                                <option value="Ideal" selected>Ideal</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label for="color">🎨 Color</label>
+                            <select id="color" name="color" required>
+                                <option value="D">D</option>
+                                <option value="E">E</option>
+                                <option value="F">F</option>
+                                <option value="G" selected>G</option>
+                                <option value="H">H</option>
+                                <option value="I">I</option>
+                                <option value="J">J</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label for="clarity">💎 Clarity</label>
+                            <select id="clarity" name="clarity" required>
+                                <option value="I1">I1</option>
+                                <option value="SI2">SI2</option>
+                                <option value="SI1">SI1</option>
+                                <option value="VS2">VS2</option>
+                                <option value="VS1">VS1</option>
+                                <option value="VVS2">VVS2</option>
+                                <option value="VVS1">VVS1</option>
+                                <option value="IF" selected>IF</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="predict-btn">🔮 Fiyat Tahmin Et</button>
+                </form>
+
+                <div class="result-card" id="resultCard">
+                    <h3>Tahmini Fiyat</h3>
+                    <h2 id="predictedPrice"></h2>
+                    <p id="comparison"></p>
+                    <p id="similarInfo"></p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>💎 Pırlanta Fiyat Tahmin Sistemi | SVM (Support Vector Regression) Modeli</p>
+            <p>Powered by Flask & Machine Learning</p>
+        </footer>
+    </div>
+
+    <script>
+        // Tab Yönetimi
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+
+                if (btn.dataset.tab === 'home') {
+                    loadSummary();
+                } else if (btn.dataset.tab === 'analysis') {
+                    loadChart('correlation');
+                }
+            });
+        });
+
+        // Chart Seçimi
+        document.querySelectorAll('.chart-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                loadChart(btn.dataset.chart);
+            });
+        });
+
+        // Ana Sayfa Bilgileri
+        function loadSummary() {
+            fetch('/api/summary')
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('statsContainer').innerHTML = `
+                        <div class="stat-card">
+                            <h3>Toplam Pırlanta</h3>
+                            <div class="value">${data.total_diamonds}</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Ortalama Fiyat</h3>
+                            <div class="value">${data.avg_price}</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>En Yüksek Fiyat</h3>
+                            <div class="value">${data.max_price}</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>En Düşük Fiyat</h3>
+                            <div class="value">${data.min_price}</div>
+                        </div>
+                    `;
+                });
+        }
+
+        // Chart Yükleme
+        function loadChart(chartType) {
+            const loading = document.getElementById('chartLoading');
+            const image = document.getElementById('chartImage');
+            
+            loading.style.display = 'block';
+            image.style.display = 'none';
+            
+            fetch(`/api/chart/${chartType}`)
+                .then(res => res.json())
+                .then(data => {
+                    image.src = `data:image/png;base64,${data.image}`;
+                    image.style.display = 'block';
+                    loading.style.display = 'none';
+                });
+        }
+
+        // Fiyat Tahmin
+        document.getElementById('predictForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                carat: document.getElementById('carat').value,
+                cut: document.getElementById('cut').value,
+                color: document.getElementById('color').value,
+                clarity: document.getElementById('clarity').value,
+                depth: document.getElementById('depth').value,
+                table: document.getElementById('table').value,
+                x: document.getElementById('x').value,
+                y: document.getElementById('y').value,
+                z: document.getElementById('z').value
+            };
+            
+            const res = await fetch('/api/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            
+            const result = await res.json();
+            
+            document.getElementById('predictedPrice').textContent = result.predicted_price;
+            document.getElementById('comparison').textContent = `${result.comparison} (Ort: ${result.avg_price})`;
+            document.getElementById('similarInfo').textContent = 
+                `${result.similar_count} benzer pırlanta bulundu - Ort. Fiyat: ${result.similar_avg_price}`;
+            
+            document.getElementById('resultCard').classList.add('show');
+        });
+
+        // Sayfa Yüklendiğinde
+        window.addEventListener('load', () => {
+            loadSummary();
+        });
+    </script>
+</body>
+</html>
