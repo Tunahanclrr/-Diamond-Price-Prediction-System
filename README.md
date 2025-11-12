@@ -1,5 +1,6 @@
 # 💎 Diamond Price Prediction System
-
+demo:https://buzeuxblsrrsebhps5cpvq.streamlit.app/
+dataset:https://www.kaggle.com/datasets/shivam2503/diamonds/data
 *A comprehensive machine learning application for predicting diamond prices using Streamlit and SVM*
 
 ---
@@ -153,7 +154,8 @@ Similar diamonds found: 42 with average price $7,189
 ---
 
 ## 📖 Türkçe Versiyon
-
+demo:https://buzeuxblsrrsebhps5cpvq.streamlit.app/
+dataset:https://www.kaggle.com/datasets/shivam2503/diamonds/data
 ### 🌟 Proje Hikayesi
 
 Bir mücevher dükkânına girip şöyle düşündüğünüzü hayal edin: "Acaba bu pırlanta gerçekten ne kadarına değer?" Güzelliğini görebilir, karatını ölçebilir, saflığını inceleyebilirsiniz... ama kesin fiyatı hesaplamak yıllar alacak bir uzmanlık gerektirir.
